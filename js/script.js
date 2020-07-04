@@ -16,15 +16,19 @@ function div(a, b) {
 
 function operate(operator, num1, num2) {
     if(operator === "add") {
-        return add(num1, num2)
+        return add(parseFloat(num1), parseFloat(num2))
     } else if (operator === "sub") {
-        return sub(num1, num2)
+        return sub(parseFloat(num1), parseFloat(num2))
     } else if (operator === "mul") {
-        return mul(num1, num2)
+        return mul(parseFloat(num1), parseFloat(num2))
     } else if (operator === "div") {
-        return div(num1, num2)
-    }
+        if (num2 == "0" || num2 == "-0") {
+            return "Cannot divide by zero"
+        } else {
+            return div(parseFloat(num1), parseFloat(num2))
+        }};
 };
+
 
 var displayValue = "0"
 var storedValue = ''
@@ -51,6 +55,8 @@ numButtons.forEach((button) => {
             storedValue = ''
         } else if (displayValue === "-0") {
             displayValue = "-" + button.id
+        } else if (displayValue === "Cannot divide by zero") {
+            displayValue = button.id
         } else {
             displayValue += button.id;
         }
@@ -94,48 +100,66 @@ plusMinus.addEventListener('click', () => {
 const opButtons = document.querySelectorAll('.op');
 opButtons.forEach((button) => {
     button.addEventListener('click', () => {
-        displayValue = parseFloat(displayValue)
         nextOp = button.id
         if (eqToggle == 'on') {
             prevOp = nextOp
             eqToggle = 'off'
-        } else if (storedValue != '') {
+            opToggle = "on"
+        } else if (opToggle == 'on') {
+            opToggle = 'off'
+        } else if (typeof(storedValue) == "number") {
             storedValue = operate(prevOp, storedValue, displayValue)
-            prevOp = nextOp
-            display.innerHTML = +storedValue.toFixed(10)
+            if (storedValue == "Cannot divide by zero") {
+                display.innerHTML = storedValue
+            } else {
+                prevOp = nextOp
+                display.innerHTML = +storedValue.toFixed(10)
+                opToggle = "on"
+            } 
+            
+        } else if (storedValue == "Cannot divide by zero" || displayValue == 
+        "Cannot divide by zero") {
+            storedValue = ''
         } else if (storedValue === '') {
             prevOp = button.id
-            storedValue = displayValue
-            display.innerHTML = +displayValue.toFixed(10)
-        }
-        opToggle = "on"
-        
+            storedValue = parseFloat(displayValue)
+            display.innerHTML = +parseFloat(displayValue).toFixed(10)
+            opToggle = "on"
+        } 
     });
 });
 
 const equals = document.querySelector('.equal');
 equals.addEventListener('click', () => {
-    displayValue = parseFloat(displayValue)
-    if (storedValue === '') {
-        storedValue = displayValue
-    } else {
+    if (eqToggle == "on" || opToggle == "on") {
+        return
+    // } else if(storedValue === '') {
+    //     storedValue = displayValue
+        // display.innerHTML = storedValue
+    } else if (typeof(storedValue) == "number") {
         storedValue = operate(prevOp, storedValue, displayValue)
-        displayValue = storedValue
+        if (storedValue == "Cannot divide by zero") {
+            displayValue = storedValue
+            storedValue = ''
+        } else {
+            displayValue = +storedValue.toFixed(10)
+            eqToggle = "on"
+        }
     }
-    display.innerHTML = +storedValue.toFixed(10)
-    displayValue = displayValue.toString()
-    eqToggle = "on"
+
+    display.innerHTML = displayValue
 })
 
 const clear = document.querySelector('.clr');
-clear.addEventListener('click', () => {
-    displayValue = "0"
-    display.innerHTML = displayValue
-    storedValue = ''
-    prevOp = ''
-    eqToggle = 'off'
-})
+clear.addEventListener('click', clearAll)
 
+function clearAll() {
+        displayValue = "0"
+        display.innerHTML = displayValue
+        storedValue = ''
+        prevOp = ''
+        eqToggle = 'off'
+}
 
 // if  (decToggle == "on") {
 //     displayValue == 
