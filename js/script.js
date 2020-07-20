@@ -48,7 +48,7 @@ numButtons.forEach((button) => {
             displayValue = button.id
         } else if (opToggle == "on") {
             displayValue = button.id
-            opToggle = "off"
+            toggleOperatorOff(button)
         } else if (eqToggle == "on") {
             displayValue = button.id
             eqToggle = "off"
@@ -84,7 +84,7 @@ plusMinus.addEventListener('click', () => {
         displayValue = '-' + displayValue
     } else if (opToggle == "on") {
         displayValue = '-0'
-        opToggle = "off"
+        toggleOperatorOff(button)
     } else if (eqToggle == "on") {
         displayValue *= -1
         storedValue *= -1
@@ -100,21 +100,24 @@ plusMinus.addEventListener('click', () => {
 const opButtons = document.querySelectorAll('.op');
 opButtons.forEach((button) => {
     button.addEventListener('click', () => {
-        nextOp = button.id
         if (eqToggle == 'on') {
-            prevOp = nextOp
+            prevOp = button.id
             eqToggle = 'off'
-            opToggle = "on"
+            operatorOn(button)
         } else if (opToggle == 'on') {
-            opToggle = 'off'
-        } else if (typeof(storedValue) == "number") {
+            toggleOperatorOff(button)
+            prevOp = ''
+            storedValue = ''
+        } else if (typeof(storedValue) == "number" && opToggle == 'off') {
             storedValue = operate(prevOp, storedValue, displayValue)
             if (storedValue == "Cannot divide by zero") {
                 display.innerHTML = storedValue
+                storedValue = ''
             } else {
-                prevOp = nextOp
-                display.innerHTML = +storedValue.toFixed(10)
-                opToggle = "on"
+                prevOp = button.id
+                displayValue = (+storedValue.toFixed(10)).toString()
+                display.innerHTML = displayValue
+                operatorOn(button)
             } 
             
         } else if (storedValue == "Cannot divide by zero" || displayValue == 
@@ -125,32 +128,51 @@ opButtons.forEach((button) => {
             storedValue = parseFloat(displayValue)
             display.innerHTML = +parseFloat(displayValue).toFixed(10)
             opToggle = "on"
-        } 
+            button.classList.add('on')
+        } else {
+            prevOp = button.id
+            operatorOn(button)
+        }
     });
 });
 
 const equals = document.querySelector('.equal');
 equals.addEventListener('click', () => {
     if (eqToggle == "on" || opToggle == "on") {
+        opButtons.forEach(button => button.classList.remove('on'))
         return
-    // } else if(storedValue === '') {
-    //     storedValue = displayValue
-        // display.innerHTML = storedValue
-    } else if (typeof(storedValue) == "number") {
+    } else if (typeof(storedValue) == "number" && prevOp != '') {
         storedValue = operate(prevOp, storedValue, displayValue)
         if (storedValue == "Cannot divide by zero") {
             displayValue = storedValue
             storedValue = ''
         } else {
-            displayValue = +storedValue.toFixed(10)
+            displayValue = (+storedValue.toFixed(10)).toString()
             eqToggle = "on"
         }
+    } else {
+        eqToggle = 'on'
     }
 
     display.innerHTML = displayValue
 })
 
-const clear = document.querySelector('.clr');
+const backspace = document.querySelector('#bkspc');
+backspace.addEventListener('click', () => {
+    if (displayValue == "Cannot divide by zero") {
+        clearAll()
+    } else if (opToggle == 'on') {
+        toggleOperatorOff()
+        prevOp = ''
+    } else if (displayValue.length == 1) {
+        displayValue = '0'
+    } else if (displayValue != '0') {
+        displayValue = displayValue.slice(0,displayValue.length-1)
+    }
+    display.innerHTML = displayValue
+})
+
+const clear = document.querySelector('#clr');
 clear.addEventListener('click', clearAll)
 
 function clearAll() {
@@ -159,6 +181,18 @@ function clearAll() {
         storedValue = ''
         prevOp = ''
         eqToggle = 'off'
+        opToggle = 'off'
+        opButtons.forEach(button => button.classList.remove('on'))
+}
+
+function toggleOperatorOff(btn) {
+    opToggle = 'off'
+    opButtons.forEach(btn => btn.classList.remove('on'))
+}
+
+function operatorOn(btn) {
+    opToggle = 'on'
+    btn.classList.add('on')
 }
 
 // if  (decToggle == "on") {

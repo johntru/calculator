@@ -29,3 +29,20 @@
     display: inline-block;
     font-size: 20pt;
 }
+
+.op {
+    background-color:#e2edff;
+}
+
+.equal {
+    background-color: #FFF4E2;
+}
+
+.on {
+    background-color: #c3daff;
+}
+
+.bkspc-clr {
+    font-size: 16pt;
+    background-color: #d4ffee;
+}
